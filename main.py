@@ -197,3 +197,5 @@ while running: # 게임이 실행 중인 동안
 
 # pygame 종료
 pygame.quit()
+
+# 테스트 용 주석
