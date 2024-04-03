@@ -13,7 +13,7 @@ square_size = 25  # 크기 설정
 wall_color = (0, 0, 0)  # 벽의 색상과 위치 설정
 wall_position = pygame.Rect(window_size[0] / 2 - square_size * 19 , window_size [1] / 2 - square_size * 10, 20 * square_size, 20 * square_size)  
 
-grid_color = (200, 200, 200)  # 그리드의 색상과 
+grid_color = (200, 200, 200)  # 그리드 색상
 
 rooms = [     # 방의 위치와 크기 설정
     (wall_position[0] + 0 * square_size, wall_position[1] + 2 * square_size, 6 * square_size, 6 * square_size),  # Room 1
@@ -93,31 +93,6 @@ room_walls = [    # 방의 벽 설정
     # 필요한 만큼 방 벽을 추가
 ]
 
-suspects = {    
-    "Peacock": "Blue",
-    "Plum": "Purple",
-    "Scarlet": "Red",
-    "Mustard": "Yellow",
-    "Green": "Green",
-    "White": "White"
-}   # 용의자
-
-weapons = {    
-    "Candlestick": "Candlestick",
-    "Dagger": "Dagger",
-    "Lead Pipe": "Lead Pipe",
-    "Revolver": "Revolver",
-    "Rope": "Rope",
-    "Wrench": "Wrench"
-}    # 무기
-
-player_size = 10 # 플레이어 크기 설정
-
-loc = (square_size - player_size) / 2 # 플레이어 위치 설정
-player_position = (rooms[12][0] + loc, rooms[12][1] + loc) # 시작 위치
-
-player_color = (0, 0, 255) # 플레이어 색상 설정
-
 grid = set() # 그리드 설정
 
 # 방을 그리드에 추가
@@ -152,10 +127,54 @@ if len(rooms) >= len(room_names):
         text = font.render(room_names[i], True, wall_color) # 방 이름 생성
         window.blit(text, (room[0] + 5, room[1] + 5)) # 방 이름 표시
 
-player = pygame.Rect(player_position[0], player_position[1], player_size, player_size) # 플레이어 그리기
+suspects = {    
+    "Peacock": "Blue",
+    "Plum": "Purple",
+    "Scarlet": "Red",
+    "Mustard": "Yellow",
+    "Green": "Green",
+    "White": "White"
+}   # 용의자
 
-pygame.draw.rect(window, player_color, player) # 플레이어 색상으로 플레이어를 그림
-print("player : ", player)
+weapons = {    
+    "Candlestick": "Candlestick",
+    "Dagger": "Dagger",
+    "Lead Pipe": "Lead Pipe",
+    "Revolver": "Revolver",
+    "Rope": "Rope",
+    "Wrench": "Wrench"
+}    # 무기
+
+player_size = 12 # 플레이어 크기
+loc = (square_size - player_size) / 2 # 플레이어 위치
+
+# 플레이어
+player1_position = (rooms[12][0] + loc, rooms[12][1] + loc)
+player1_color = (0, 0, 255)     # Peacock
+player1 = {"position": player1_position, "color": player1_color, "name": "Peacock"}
+
+player2_position = (rooms[0][0] + loc, rooms[0][1] + loc)
+player2_color = (255, 0, 0)     # Scarlet
+player2 = {"position": player2_position, "color": player2_color, "name": "Scarlet"}
+
+player3_position = (rooms[1][0] + loc, rooms[1][1] + loc)
+player3_color = (255, 0, 255)     # Plum
+player3 = {"position": player3_position, "color": player3_color, "name": "Plum"}
+
+player4_position = (rooms[2][0] + loc, rooms[2][1] + loc)
+player4_color = (255, 255, 0)     # Mustard
+player4 = {"position": player4_position, "color": player4_color, "name": "Mustard"}
+
+# 기존 플레이어 그리기
+pygame.draw.rect(window, player1_color, pygame.Rect(player1_position[0], player1_position[1], player_size, player_size))
+pygame.draw.rect(window, player2_color, pygame.Rect(player2_position[0], player2_position[1], player_size, player_size))
+pygame.draw.rect(window, player3_color, pygame.Rect(player3_position[0], player3_position[1], player_size, player_size))
+pygame.draw.rect(window, player4_color, pygame.Rect(player4_position[0], player4_position[1], player_size, player_size))
+
+print("player : ", player1)
+print("player : ", player2)
+print("player : ", player3)
+print("player : ", player4)
 
 pygame.display.flip() # 창 업데이트
 
