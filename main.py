@@ -1,7 +1,7 @@
 import pygame
 import random
 
-square_size = 30  # 기본 사각형 크기 설정
+square_size = 40  # 기본 사각형 크기 설정
 window_size = (square_size * 40, square_size * 24) # 창 크기 설정
 background_color = (255, 255, 255) # 창 배경색 설정
 wall_color = (0, 0, 0)  # 벽의 색상 설정
@@ -33,72 +33,93 @@ bonus_cards = { # 보너스카드
 bonus_cards_list = [card for card in bonus_cards for _ in range(2)] # 각 카드를 원하는 수만큼 복제합니다.
 bonus_cards_list.extend(["원하는 장소로 이동합니다."])
 
-rooms = [     # 방의 위치와 크기 설정
-        (wall_position[0] + 0 * square_size, wall_position[1] + 2 * square_size, 6 * square_size, 6 * square_size),  # Room 1
-        (wall_position[0] + 6 * square_size, wall_position[1] + 6 * square_size, 1 * square_size, 2 * square_size),  # Room 1.1
-        (wall_position[0] + 6 * square_size, wall_position[1] + 0 * square_size, 4 * square_size, 4 * square_size),  # Room 2
-        (wall_position[0] + 10 * square_size, wall_position[1] + 1 * square_size, 4 * square_size, 5 * square_size),  # Room 3
-        (wall_position[0] + 14 * square_size, wall_position[1] + 2 * square_size, 6 * square_size, 6 * square_size),  # Room 4
-        (wall_position[0] + 13 * square_size, wall_position[1] + 8 * square_size, 7 * square_size, 5 * square_size),  # Room 5
-        (wall_position[0] + 14 * square_size, wall_position[1] + 13 * square_size, 6 * square_size, 6 * square_size),  # Room 6
-        (wall_position[0] + 8 * square_size, wall_position[1] + 17 * square_size, 4 * square_size, 3 * square_size),  # Room 7(outside)
-        (wall_position[0] + 6 * square_size, wall_position[1] + 16 * square_size, 2 * square_size, 4 * square_size),  # Room 7.1(outside)
-        (wall_position[0] + 12 * square_size, wall_position[1] + 16 * square_size, 2 * square_size, 4 * square_size),  # Room 7.2(outside)
-        (wall_position[0] + 1 * square_size, wall_position[1] + 14 * square_size, 5 * square_size, 6 * square_size),  # Room 8
-        (wall_position[0] + 1 * square_size, wall_position[1] + 8 * square_size, 5 * square_size, 6 * square_size),  # Room 9
-        (wall_position[0] + 8 * square_size, wall_position[1] + 10 * square_size, 4 * square_size, 3 * square_size),  # Room start
+room_size = [ # 방의 크기 설정
+    (6, 6),  # Room 1
+    (1, 2),  # Room 1.1
+    (4, 4),  # Room 2
+    (4, 5),  # Room 3
+    (6, 6),  # Room 4
+    (7, 5),  # Room 5
+    (6, 6),  # Room 6
+    (4, 3),  # Room 7(outside)
+    (2, 4),  # Room 7.1(outside)
+    (2, 4),  # Room 7.2(outside)
+    (5, 6),  # Room 8
+    (5, 6),  # Room 9
+    (4, 3),  # Room start
 ]
-room_walls = [    # 방의 벽 설정
+room_position = [ # 방의 위치 설정
+    (0, 2),  # Room 1
+    (6, 6),  # Room 1.1
+    (6, 0),  # Room 2
+    (10, 1),  # Room 3
+    (14, 2),  # Room 4
+    (13, 8),  # Room 5
+    (14, 13),  # Room 6
+    (8, 17),  # Room 7(outside)
+    (6, 16),  # Room 7.1(outside)
+    (12, 16),  # Room 7.2(outside)
+    (1, 14),  # Room 8
+    (1, 8),  # Room 9
+    (8, 10),  # Room start
+]
+rooms = [(wall_position[0] + x * square_size, wall_position[1] + y * square_size, w * square_size, h * square_size) for (x, y), (w, h) in zip(room_position, room_size)] # 방의 위치와 크기를 결합
+room_walls_position = [ # 방 벽 위치 설정
         # 방 1번
-        ((rooms[0][0], rooms[0][1]), (rooms[0][0] + square_size * 6, rooms[0][1])),
-        ((rooms[0][0] + square_size * 6, rooms[0][1]), (rooms[0][0] + square_size * 6, rooms[0][1] + square_size)),
-        ((rooms[0][0] + square_size * 6, rooms[0][1] + square_size * 2), (rooms[0][0] + square_size * 6, rooms[0][1] + square_size * 3)),
-        ((rooms[0][0] + square_size * 6, rooms[0][1] + square_size * 4), (rooms[0][0] + square_size * 6 + square_size, rooms[0][1] + square_size * 4)),
-        ((rooms[0][0] + square_size * 7, rooms[0][1] + square_size * 4), (rooms[0][0] + square_size * 6 + rooms[1][2], rooms[0][1] + square_size * 6)),
-        ((rooms[0][0] + square_size * 7, rooms[0][1] + square_size * 6), (rooms[0][0], rooms[0][1] + square_size * 6)),
+        ((0, 2), (6, 2)),
+        ((6, 0), (6, 3)),
+        ((6, 4), (6, 5)),
+        ((6, 6), (7, 6)),
+        ((7, 6), (7, 8)),
+        ((7, 8), (0, 8)),
         # 방 2번
-        ((rooms[2][0], rooms[2][1]), (rooms[2][0], rooms[2][1] + square_size * 2)),
-        ((rooms[2][0] + square_size * 4, rooms[2][1]), (rooms[2][0] + square_size * 4, rooms[2][1] + square_size * 4)),
-        ((rooms[2][0], rooms[2][1] + square_size * 4), (rooms[2][0] + square_size * 2, rooms[2][1] + square_size * 4)),
-        ((rooms[2][0] + square_size * 3, rooms[2][1] + square_size * 4), (rooms[2][0] + square_size * 4, rooms[2][1] + square_size * 4)),
+        ((10, 0), (10, 4)),
+        ((10, 4), (9, 4)),
+        ((8, 4), (6, 4)),
         # 방 3번
-        ((rooms[3][0], rooms[3][1]), (rooms[3][0] + square_size * 4, rooms[3][1])),
-        ((rooms[3][0] + square_size * 4, rooms[3][1]), (rooms[3][0] + square_size * 4, rooms[3][1] + square_size * 5)),
-        ((rooms[3][0], rooms[3][1] + square_size * 5), (rooms[3][0] + square_size * 4, rooms[3][1] + square_size * 5)),
-        ((rooms[3][0], rooms[3][1] + square_size * 5), (rooms[3][0], rooms[3][1] + square_size * 4)),
+        ((10, 1), (14, 1)),
+        ((14, 1), (14, 6)),
+        ((14, 6), (9, 6)),
+        ((10, 6), (10, 5)),
         # 방 1,2,3 앞 복도
-        ((rooms[3][0], rooms[3][1] + square_size * 5), (rooms[3][0], rooms[3][1] + square_size * 4)),
-        ((rooms[3][0], rooms[3][1] + square_size * 5), (rooms[3][0] - square_size, rooms[3][1] + square_size * 5)),
-        ((rooms[3][0] - square_size, rooms[3][1] + square_size * 5), (rooms[3][0] - square_size, rooms[3][1] + square_size * 7)),
+        ((9, 6), (9, 8)),
         # 방 4번
-        ((rooms[4][0], rooms[4][1]), (rooms[4][0] + rooms[4][2], rooms[4][1])),
-        ((rooms[4][0] + rooms[4][2], rooms[4][1] + square_size * 6), (rooms[4][0] + rooms[4][2] - square_size * 2, rooms[4][1] + square_size * 6)),
-        ((rooms[4][0] + rooms[4][2] - square_size * 4, rooms[4][1] + square_size * 6), (rooms[4][0] + rooms[4][2] - square_size * 7, rooms[4][1] + square_size * 6)),
-        ((rooms[4][0] + rooms[4][2] - square_size * 6, rooms[4][1] + square_size * 6), (rooms[4][0] + rooms[4][2] - square_size * 6, rooms[4][1] + square_size * 5)),
+        ((14, 2), (20, 2)),
+        ((20, 8), (18, 8)),
+        ((16, 8), (13, 8)),
+        ((14, 7), (14, 8)),
         # 방 5번
-        ((rooms[5][0], rooms[5][1]), (rooms[5][0], rooms[5][1] + square_size * 2)),
-        ((rooms[5][0], rooms[5][1] + square_size * 3), (rooms[5][0], rooms[5][1] + square_size * 5)),
-        ((rooms[5][0], rooms[5][1] + square_size * 5), (rooms[5][0] + square_size * 7, rooms[5][1] + square_size * 5)),
+        ((13, 8), (13, 10)),    
+        ((13, 11), (13, 13)),
+        ((13, 13), (20, 13)),
         # 방 6번
-        ((rooms[6][0], rooms[6][1]), (rooms[6][0] , rooms[6][1] + square_size * 1)),
-        ((rooms[6][0] , rooms[6][1] + square_size * 2), (rooms[6][0] , rooms[6][1] + square_size * 7)),
-        ((rooms[6][0] , rooms[6][1] + square_size * 6), (rooms[6][0] + square_size * 6, rooms[6][1] + square_size * 6)),
+        ((14, 13), (14, 14)),
+        ((14, 15), (14, 20)),
+        ((14, 19), (20, 19)),
         # 방 7번 (바깥) 구현
-        ((rooms[8][0], rooms[8][1]), (rooms[8][0], rooms[8][1] + square_size * 4)),
-        ((rooms[8][0], rooms[8][1]), (rooms[8][0] + square_size * 2, rooms[8][1])),
-        ((rooms[8][0] + square_size * 2, rooms[8][1]), (rooms[7][0], rooms[7][1])),
-        ((rooms[7][0], rooms[7][1]), (rooms[7][0] + square_size * 1, rooms[7][1])),
-        ((rooms[7][0] + square_size * 3, rooms[7][1]), (rooms[7][0] + square_size * 4, rooms[7][1])),
-        ((rooms[9][0], rooms[9][1]), (rooms[9][0], rooms[9][1] + square_size * 1)),
-        ((rooms[9][0], rooms[9][1]), (rooms[9][0] + square_size * 2, rooms[9][1])),
+        ((6, 20), (6, 16)),
+        ((6, 16), (8, 16)),
+        ((8, 16), (8, 17)),
+        ((8, 17), (9, 17)),
+        ((11, 17), (12, 17)),
+        ((12, 17), (12, 16)),
+        ((12, 16), (14, 16)),
         # 방 8번
-        ((rooms[10][0], rooms[10][1]), (rooms[10][0], rooms[10][1] + square_size * 6)),
-        ((rooms[10][0], rooms[10][1]), (rooms[10][0] + square_size * 5, rooms[10][1])),
-        ((rooms[10][0] + square_size * 5, rooms[10][1] - square_size * 2), (rooms[10][0] + square_size * 5, rooms[10][1] + square_size * 1)),
-        # 방 9번
-        ((rooms[11][0], rooms[11][1]), (rooms[11][0], rooms[11][1] + square_size * 6)),
-        ((rooms[11][0] + square_size * 5, rooms[11][1]), (rooms[11][0] + square_size * 5, rooms[11][1] + square_size * 3)),
+        ((1, 8), (1, 20)),
+        ((1, 14), (6, 14)),
+        ((6, 15), (6, 12)),
+        # 방 9번 
+        ((6, 8), (6, 11)),
         # 시작점 방
+        ((8, 10), (10, 10)),
+        ((11, 10), (12, 10)),
+        ((12, 10), (12, 11)),
+        ((12, 12), (12, 13)),
+        ((12, 13), (11, 13)),
+        ((10, 13), (8, 13)),
+        ((8, 13), (8, 12)),
+        ((8, 11), (8, 10)),
+
         ((rooms[12][0], rooms[12][1]), (rooms[12][0], rooms[12][1] + square_size * 1)),
         ((rooms[12][0], rooms[12][1] + square_size * 2), (rooms[12][0], rooms[12][1] + square_size * 3)),
         ((rooms[12][0], rooms[12][1] + square_size * 3), (rooms[12][0] + square_size * 2, rooms[12][1] + square_size * 3)),
@@ -109,6 +130,8 @@ room_walls = [    # 방의 벽 설정
         ((rooms[12][0] + square_size * 4, rooms[12][1] + square_size * 2), (rooms[12][0] + square_size * 4, rooms[12][1] + square_size * 3))
         # 필요한 만큼 방 벽을 추가
 ]
+room_walls = [((x[0][0]*square_size + wall_position[0], x[0][1]*square_size + wall_position[1]),
+                (x[1][0]*square_size + wall_position[0], x[1][1]*square_size + wall_position[1])) for x in room_walls_position] # 방 벽 설정
 
 def draw_card(window, font, border_color, thickness, wall_color, card_position, card_width, card_height, square_size, cards, start_height): # 카드를 그리기 위한 함수
     for i, card in enumerate(cards):
@@ -126,29 +149,30 @@ def add_rooms_to_grid(rooms, square_size, grid): # 방을 그리드에 추가하
     for room in rooms: 
         room = pygame.Rect(*room)
         for x in range(room.left, room.right, square_size):
-            for y in range(room.top, room.bottom, square_size):
-                grid.add((x, y))
+            for y in range(room.top, room.bottom, square_size): grid.add((x, y)) # 방의 각 좌표를 그리드에 추가
 def add_walls_to_grid(wall_position, square_size, grid, window, background_color, grid_color, thickness): # 벽을 그리드에 추가하는 함수
     for x in range(wall_position.left, wall_position.right, square_size):
         for y in range(wall_position.top, wall_position.bottom, square_size):
             rect = pygame.Rect(x, y, square_size, square_size)
-            if (x, y) in grid: 
-                pygame.draw.rect(window, background_color, rect)
-            else: 
-                pygame.draw.rect(window, grid_color, rect, thickness // 2)
+            if (x, y) in grid: pygame.draw.rect(window, background_color, rect) # 그리드에 있는 경우 배경색으로 채우기
+            else: pygame.draw.rect(window, grid_color, rect, thickness // 2) # 그리드에 없는 경우 그리드 색상으로 선 그리기
 def draw_wall(window, wall_color, wall_position, thickness): # 벽 그리기
     pygame.draw.rect(window, wall_color, wall_position, thickness) 
 def draw_room_walls(window, wall_color, room_walls, thickness): # 방 벽 그리기
-    for wall in room_walls:
-        pygame.draw.line(window, wall_color, wall[0], wall[1], thickness) # 각 방 벽에 대해
+    for wall in room_walls: pygame.draw.line(window, wall_color, wall[0], wall[1], thickness) # 각 방 벽에 대해 선 그리기
 def draw_room_names(window, font, wall_color, square_size, rooms, room_names): # 방 이름 그리기
     if len(rooms) >= len(room_names): # 방의 수가 방 이름의 수보다 많거나 같은 경우
         for i, room in enumerate(rooms): # 각 방에 대해 
             text = font.render(room_names[i], True, wall_color) # 방 이름 생성
-            window.blit(text, (room[0] + square_size / 5, room[1] + square_size / 5)) # 방 이름 표시
-def create_and_draw_player(window, suspects, rooms, square_size, player_size, loc, player_index): # 플레이어 생성 및 그리기
-    player = (list(suspects.keys())[player_index], pygame.Rect(rooms[12][0] + loc + square_size * 3 * (player_index % 2), rooms[12][1] + square_size * 2 * (player_index // 2) + loc, player_size, player_size))
+            window.blit(text, (room[0] + square_size, room[1] + square_size)) # 방 이름 표시
+def create_player(window, suspects, rooms, square_size, player_size, loc, player_index): # 플레이어 생성
+    x, y = (loc[0] - 6) * square_size + (square_size - player_size) / 2 , (loc[1] - 6) * square_size + (square_size - player_size) / 2 # x 좌표 및 y 좌표 설정
+    player = (list(suspects.keys())[player_index], pygame.Rect(rooms[1][0] + x, rooms[1][1] + y, player_size, player_size))
+    print(player)
+    return player
+def draw_player(window, player): # 플레이어 그리기
     pygame.draw.rect(window, suspects[player[0]], player[1])
+    pygame.display.flip()
     return player
 def shuffle_and_distribute_cards(suspects, weapons, locations, num_cards): # 카드 섞고 나눠주기
     # 각 카드 세트를 섞습니다.
@@ -199,13 +223,16 @@ def main():
     case_envelope, player1_cards, player2_cards, player3_cards, player4_cards, all_cards = shuffle_and_distribute_cards(suspects, weapons, locations, num_cards)
 
     # 플레이어 생성 및 그리기
-    player_size = 12 # 플레이어 크기
-    loc = (square_size - player_size) / 2 # 플레이어 위치
-    player1 = create_and_draw_player(window, suspects, rooms, square_size, player_size, loc, 0)
-    player2 = create_and_draw_player(window, suspects, rooms, square_size, player_size, loc, 1)
-    player3 = create_and_draw_player(window, suspects, rooms, square_size, player_size, loc, 2)
-    player4 = create_and_draw_player(window, suspects, rooms, square_size, player_size, loc, 3)
-    
+    player_size = square_size / 3 # 플레이어 크기
+    player_position = { # 플레이어 위치
+        (8, 10) : 0,
+        (11, 10) : 1,
+        (8, 12) : 2,
+        (11, 12) : 3
+    }
+    players = [create_player(window, suspects, rooms, square_size, player_size, loc, player_index) for loc, player_index in player_position.items()]
+    for player in players: draw_player(window, player) # 플레이어 그리기
+
     # 카드 그리기
     card_position = wall_position[0] + wall_position[2] + 1 * square_size, wall_position[1] + -1 * square_size
     card_width = square_size * 4 # 카드 너비
