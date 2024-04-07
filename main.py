@@ -125,15 +125,6 @@ room_walls_position = [ # 방 벽 위치 설정
         ((10, 13), (8, 13)),
         ((8, 13), (8, 12)),
         ((8, 11), (8, 10)),
-
-        ((rooms[12][0], rooms[12][1]), (rooms[12][0], rooms[12][1] + square_size * 1)),
-        ((rooms[12][0], rooms[12][1] + square_size * 2), (rooms[12][0], rooms[12][1] + square_size * 3)), 
-        ((rooms[12][0], rooms[12][1] + square_size * 3), (rooms[12][0] + square_size * 2, rooms[12][1] + square_size * 3)),
-        ((rooms[12][0] + square_size * 3, rooms[12][1] + square_size * 3), (rooms[12][0] + square_size * 4, rooms[12][1] + square_size * 3)),
-        ((rooms[12][0], rooms[12][1]), (rooms[12][0] + square_size * 2, rooms[12][1])),
-        ((rooms[12][0] + square_size * 3, rooms[12][1]), (rooms[12][0] + square_size * 4, rooms[12][1])),
-        ((rooms[12][0] + square_size * 4, rooms[12][1]), (rooms[12][0] + square_size * 4, rooms[12][1] + square_size * 1)),
-        ((rooms[12][0] + square_size * 4, rooms[12][1] + square_size * 2), (rooms[12][0] + square_size * 4, rooms[12][1] + square_size * 3))
         # 필요한 만큼 방 벽을 추가
 ]
 room_walls = [((x[0][0]*square_size + wall_position[0], x[0][1]*square_size + wall_position[1]),
@@ -148,7 +139,7 @@ def ask_move_confirmation():
 def brighten_color(color_name, isBrigther): # 색상을 밝게 만드는 함수
     if isBrigther == True: # 밝은 모드인 경우
         rgb_color = colors.to_rgb(color_name) # 색상을 RGB 형식으로 변환합니다.
-        brightened_color = [min(int(channel * 255 + 0.8 * 255), 255) for channel in rgb_color] # 각 색상 채널의 값을 증가시켜 색상을 밝게 만듭니다.
+        brightened_color = [min(int(channel * 255 + 0.6 * 255), 255) for channel in rgb_color] # 각 색상 채널의 값을 증가시켜 색상을 밝게 만듭니다.
         return brightened_color # 밝은 색상을 반환합니다.
     else: return [int(channel * 255) for channel in colors.to_rgb(color_name)] # 색상을 RGB 형식으로 변환합니다.
 def draw_card(window, font, border_color, thickness, wall_color, card_position, card_width, card_height, square_size, cards, start_height): # 카드를 그리기 위한 함수
@@ -191,7 +182,7 @@ def draw_room_names(window, font, wall_color, square_size, rooms, room_names): #
             text = font.render(room_names[i], True, wall_color) # 방 이름 생성
             window.blit(text, (room[0] + square_size / 10, room[1] + square_size / 10)) # 방 이름 표시
 def create_player(rooms, square_size, player_size, player_name, loc): # 플레이어 생성
-    print("플레이어 이름:", player_name, "플레이어 위치:", loc)
+    print(player_name, "위치:", loc)
     x, y = (loc[0] - 6) * square_size + (square_size - player_size) / 2 , (loc[1] - 6) * square_size + (square_size - player_size) / 2 # x 좌표 및 y 좌표 설정
     player = (player_name, pygame.Rect(rooms[1][0] + x, rooms[1][1] + y, player_size, player_size))
     return player
@@ -219,10 +210,10 @@ def shuffle_and_distribute_cards(suspects, weapons, locations, num_cards): # 카
     random.shuffle(all_cards)  # 카드를 섞습니다.
     # 각 플레이어에게 카드를 나눠줍니다.
     player_cards = {}
-    for i in range(1, 5): player_cards[list(suspects.keys())[i]] = all_cards[num_cards * (i - 1):num_cards * i] #플레이어에게 카드 나눠주기
-    last_cards = all_cards[num_cards * 4:] # 남은 카드 
-    print("card :" , player_cards) 
-    print("last cards :", last_cards)
+    for i in range(1, 5): 
+        player_cards[list(suspects.keys())[i]] = all_cards[num_cards * (i - 1):num_cards * i] #플레이어에게 카드 나눠주기
+        print(list(suspects.keys())[i - 1], "카드:", player_cards[list(suspects.keys())[i]])
+    last_cards = all_cards[num_cards * 4:] # 남은 카드
     return case_envelope, player_cards, last_cards
 def draw_dice(dice1, dice2): # 주사위 그리기
     dice1_position = wall_position[0] + 21 * square_size, wall_position[1] + 15 * square_size, 2 * square_size, 2 * square_size # 주사위 위치 및 크기 설정
@@ -267,7 +258,6 @@ def move_player(current_player, player_size, player_position, dice1, dice2, othe
             draw_player(window, create_player(rooms, square_size, player_size, current_player, new_position), True)
             player_position = new_position
             dice_roll -= 1
-            print("이동 후 위치:", player_position)
     # 정말 이동하겠냐고 콘솔창에 물어보기
     if ask_move_confirmation(): print("이동합니다.")
     else:
@@ -338,7 +328,7 @@ def main():
                         dice1 = roll_dice()  # 주사위를 굴립니다.
                         dice2 = roll_dice()  # 주사위를 굴립니다.
                         dice_roll_cnt += 1 # 주사위 굴린 횟수 증가
-                        current_player = list(player_position.keys())[dice_roll_cnt % 4] # 현재 플레이어를 결정합니다.
+                        current_player = list(player_position.keys())[dice_roll_cnt % 4 - 1] # 현재 플레이어를 결정합니다.
                     else: # 이전 주사위 결과가 있는 경우
                         dice1 = previous_dice1  # 이전 주사위 결과를 사용합니다.
                         dice2 = previous_dice2  # 이전 주사위 결과를 사용합니다.
