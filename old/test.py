@@ -1,6 +1,6 @@
 import pygame as pg
 import random
-#from matplotlib import colors
+from matplotlib import colors
 import tkinter as tk
 from tkinter import messagebox as msg
 import ctypes
