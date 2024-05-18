@@ -2,6 +2,7 @@ import pygame as pg
 import random
 import tkinter as tk
 from tkinter import messagebox as msg
+from tkinter import simpledialog as sd
 import ctypes
 import time
 import win32gui
@@ -456,9 +457,13 @@ def move_player(cur_player, player_size, player_pos, dice1, dice2, other_players
             print(cur_player, "위치 이동", old_pos, " -> ", player_pos)
             print("이동 후 방 위치 : ", cur_player_room_loc)
             if cur_player_room_loc[cur_player] != "시작점" and isOutStartRoom[cur_player] is True: # 시작점 방을 나간 경우
-                reason = reasoning(cur_player, cur_player_room_loc) # 추리하기
-                if reason is not None: print("추리 결과:", reason)
-                else: print("추리 안함")
+                reason = reasoning(cur_player, cur_player_room_loc) # 추리
+                if reason is None: # 추리를 하지 않은 경우
+                    print("추리를 하지 않음. 다음 차례.")
+                    show_message("알림", "추리를 하지 않아 다음 차례로 넘어갑니다.")
+                else:
+                    print("추리를 함. 다음 차례.")
+                    show_message("알림", "추리를 하여 다음 차례로 넘어갑니다.")
             return player_pos
 def draw_all(font, card_font, border_color, border_thickness, wall_color, player_cards, card_pos, card_width, card_height, square_size, 
              rooms, grid, room_names, room_walls, all_cards, bonus_cards_list, case_envelope, thickness, player_size, player_pos, dice1, dice2, button_pos): # 모든 요소 그리기
@@ -478,16 +483,42 @@ def draw_all(font, card_font, border_color, border_thickness, wall_color, player
     pg.display.flip() # 창 업데이트
 def reasoning(cur_player, cur_player_room_loc):
     root = tk.Tk()
-    root.withdraw()  # root 창을 숨깁니다.
-    if show_message("추리", cur_player + "님, 추리를 시작하시겠습니까?"): # Yes/No 대화상자를 표시합니다.
+    root.withdraw()  # Hide the root window
+
+    if show_message("추리", f"{cur_player}님, 추리를 시작하시겠습니까?"): # Yes/No dialog
         print("추리 시작")
         show_message("알림", "추리를 시작합니다.")
-        s = list(suspects.keys()) # 의심인물 리스트
-        w = list(weapons) # 살인도구 리스트
-        l = list(locs) # 발생 장소 리스트
-    else: # No를 누른 경우
+        
+        s = list(suspects.keys()) # List of suspects
+        w = list(weapons) # List of weapons
+
+        while True:
+            suspect = sd.askstring("용의자 선택", "용의자를 선택하세요:", initialvalue=s[0], parent=root)
+            if suspect in s:
+                break
+            print("잘못된 의심 인물 선택")
+        
+        while True:
+            weapon = sd.askstring("살인 도구 선택", "살인 도구를 선택하세요:", initialvalue=w[0], parent=root)
+            if weapon in w:
+                break
+            print("잘못된 살인 도구 선택")
+
+        print(f"추리: 용의자 - {suspect}, 무기 - {weapon}, 장소 - {cur_player_room_loc[cur_player]}")
+        # Logic for handling the suggestion
+        suggestion = {
+            "suspect": suspect,
+            "weapon": weapon,
+            "room": cur_player_room_loc[cur_player]
+        }
+        message = handle_suggestion(cur_player, suggestion)
+        show_message("추리 결과", message)
+    else:
         print("추리 취소")
         return None
+def handle_suggestion(player_name, suggestion):
+    print(f"{player_name}의 추리: {suggestion}")
+    return f"{player_name}의 추리 결과: 아무도 카드를 가지고 있지 않습니다."
 def main(): # 메인 함수
     pg.init() # pg 초기화
     dice1 = 0  # 주사위 초기값 설정
@@ -524,7 +555,6 @@ def main(): # 메인 함수
         list(suspects.keys())[2]: room_names[rooms.index(rooms[12])],
         list(suspects.keys())[3]: room_names[rooms.index(rooms[12])],
     }
-    reason = (None, None, None) # 추리 결과
     
     draw_all(font, card_font, border_color, border_thickness, wall_color, player_cards, card_pos, card_width, card_height, square_size, # 모든 요소 그리기
              rooms, grid, room_names, room_walls, all_cards, bonus_cards_list, case_envelope, thickness, player_size, player_pos, dice1, dice2, button_pos)
