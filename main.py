@@ -38,7 +38,7 @@ suspects = { # 용의자카드
         "화이트": WHITE
 }
 weapons = ["파이프", "밧줄", "단검", "렌치", "권총", "촛대"]  # 도구카드
-locs = ["침실", "욕실", "서제", "부엌", "식당", "거실", "마당", "차고", "게임룸"]  # 장소카드
+locs = ["침실", "욕실", "서재", "부엌", "식당", "거실", "마당", "차고", "게임룸"]  # 장소카드
 room_names = locs.copy() # 방 이름 설정
 room_names.insert(1, "") # 이름 빈 방
 room_names.insert(8, "") # 이름 빈 방
@@ -57,7 +57,7 @@ bonus_cards_list.extend(["원하는 장소로 이동합니다."]) # 보너스카
 room_size = [ # 방의 크기 설정
     (6, 6),  # Room 1
     (1, 2),  # Room 1.1
-    (4, 4),  # Room 2s
+    (4, 4),  # Room 2
     (4, 5),  # Room 3
     (6, 6),  # Room 4
     (7, 5),  # Room 5
@@ -84,6 +84,21 @@ room_pos = [ # 방의 위치 설정
     (1, 8),  # Room 9
     (8, 10),  # Room start
 ]
+# room_colors = [ # 방의 색상 설정
+#     (255, 182, 193, 255),  # 침실 (분홍색)
+#     (255, 182, 193, 255),  # 침실 (분홍색)
+#     (135, 206, 235, 255),  # 욕실 (하늘색)
+#     (0, 128, 0, 255),      # 서재 (초록색)
+#     (255, 250, 205, 255),  # 부엌 (연한 노란색)
+#     (205, 133, 63, 255),   # 식당 (연한 갈색)
+#     (255, 165, 0, 255),    # 거실 (주황색)
+#     (0, 128, 0, 255),      # 마당 (초록색)
+#     (0, 128, 0, 255),      # 마당 (초록색)
+#     (0, 128, 0, 255),      # 마당 (초록색)
+#     (70, 70, 70, 255),     # 차고 (강철 회색)
+#     (255, 0, 0, 255),      # 게임룸 (빨강)
+#     (128, 128, 128, 255),  # 시작점 (회색)
+# ]
 rooms = [(wall_pos[0] + x * square_size, wall_pos[1] + y * square_size, w * square_size, h * square_size) for (x, y), (w, h) in zip(room_pos, room_size)] # 방의 위치와 크기를 결합
 room_walls_pos = [ # 방 벽 위치 설정
         ((0, 2), (6, 2)),
@@ -214,6 +229,9 @@ def add_walls_to_grid(wall_pos, square_size, grid, window, background_color, gri
                     pg.draw.rect(window, brighten_color(RED, True), rect) # 보너스카드 위치에 연한 빨간색으로 채우기
                     window.blit(question_mark, (rect[0] + square_size / 4, rect[1] + square_size / 4)) # 보너스카드 위치에 "?" 표시
                 pg.draw.rect(window, grid_color, rect, thickness // 2) # 그리드에 없는 경우 그리드 색상으로 선 그리기
+def draw_rooms(window, room_colors, rooms): # 방 그리기
+    for i, room in enumerate(rooms): # 각 방에 대해
+        pg.draw.rect(window, room_colors[i], room) # 방 색상으로 채우기
 def draw_wall(window, wall_color, wall_pos, thickness): # 벽 그리기
     pg.draw.rect(window, wall_color, wall_pos, thickness) 
 def draw_room_walls(window, wall_color, room_walls, thickness): # 방 벽 그리기
@@ -451,6 +469,9 @@ def move_player(cur_player, player_size, player_pos, dice1, dice2, other_players
                     new_poss.append(new_pos)  # 새로운 위치를 리스트에 추가
                     player_pos = new_pos
                     dice_roll -= 1
+                    if (player_pos[0], player_pos[1]) in grid_bonus_pos:
+                        bonus_card = get_bonus_card()
+                        show_message("보너스 카드 획득!", f"{cur_player}님, 보너스 카드를 획득했습니다: {bonus_card}\n{bonus_cards[bonus_card]}")
         if dice_roll == 0: # 주사위를 모두 사용한 경우
             print(cur_player, ":", player_pos, "으로 이동합니다.") 
             show_message("알림", (cur_player + "이/가 " + str(player_pos) + " 으로 이동합니다."))
@@ -469,6 +490,7 @@ def draw_all(font, card_font, border_color, border_thickness, wall_color, player
              rooms, grid, room_names, room_walls, all_cards, bonus_cards_list, case_envelope, thickness, player_size, player_pos, dice1, dice2, button_pos): # 모든 요소 그리기
     window.fill(background_color) # 창 배경색으로 채우기
     add_walls_to_grid(wall_pos, square_size, grid, window, background_color, grid_color, thickness) # 벽을 그리드에 추가
+    # draw_rooms(window, room_colors, rooms) # 방 그리기
     draw_wall(window, wall_color, wall_pos, thickness) # 벽 그리기
     draw_room_walls(window, wall_color, room_walls, thickness) # 방 벽 그리기
     draw_room_names(window, font, wall_color, square_size, rooms, room_names) # 방 이름 그리기
@@ -519,6 +541,8 @@ def reasoning(cur_player, cur_player_room_loc):
 def handle_suggestion(player_name, suggestion):
     print(f"{player_name}의 추리: {suggestion}")
     return f"{player_name}의 추리 결과: 아무도 카드를 가지고 있지 않습니다."
+def get_bonus_card():
+    return random.choice(list(bonus_cards.keys()))
 def main(): # 메인 함수
     pg.init() # pg 초기화
     dice1 = 0  # 주사위 초기값 설정
